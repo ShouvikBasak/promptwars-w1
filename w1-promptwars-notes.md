@@ -80,6 +80,8 @@ Submissions will be reviewed on:
 
 ## Prompt to brainstorm ideas
 
+Initial prompt to Copilot:
+
 I am participating in the Google PromptWars Hackathon, and I need to design a solution that improves the physical event experience for attendees at large-scale sporting venues. The system should address challenges such as crowd movement, waiting times, and real-time coordination, while ensuring a seamless and enjoyable experience. I have $5 credit to use Google Cloud, Gemini API, and Firebase for my project. Can you help me brainstorm some ideas on how to approach this problem?
 
 As a judging criteria, my solution will be evaluated on code quality, security, efficiency, testing, accessibility, and the use of Google services. I want to make sure that my solution is not only innovative but also practical and user-friendly.
