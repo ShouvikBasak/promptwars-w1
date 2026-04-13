@@ -78,9 +78,9 @@ Submissions will be reviewed on:
     Accessibility – inclusive and usable design
     Google Services – meaningful integration of Google Services
 
-## Prompt to brainstorm ideas
+## IDEATION: Prompt to brainstorm ideas
 
-Initial prompt to Copilot:
+**Initial prompt to Copilot for ideation**
 
 I am participating in the Google PromptWars Hackathon, and I need to design a solution that improves the physical event experience for attendees at large-scale sporting venues. The system should address challenges such as crowd movement, waiting times, and real-time coordination, while ensuring a seamless and enjoyable experience. I have $5 credit to use Google Cloud, Gemini API, and Firebase for my project. Can you help me brainstorm some ideas on how to approach this problem?
 
@@ -91,4 +91,88 @@ The submission will consist of two parts: a technical component, which includes 
 I have to use Google Antigravity to create the solution.
 
 Can you help me brainstorm some ideas on how to approach this problem and design a solution that meets the criteria mentioned above? Also, what are similar existing websites that perform similar functions, and how can I differentiate my solution from them?
+
+## Planning phase - laying the foundations
+
+Based on the above I have done the following:
+
+- Created a git repo "promptwars-w1" which is private now and will make public once my project is ready for submission
+- Cloned the git repo locally and opened using Antigravity
+- Created the README.md just as stated above
+
+What are now the best practices to build the project using Antigravity. Before I actually start building the project I would go step by step setting up the best practices and follow accordingly so that the foundations are strong and the code base meets all the criteria for AI to evaluate the following parameters:
+    Code Quality – structure, readability, maintainability
+    Security – safe and responsible implementation
+    Efficiency – optimal use of resources
+    Testing – validation of functionality
+    Accessibility – inclusive and usable design
+    Google Services – meaningful integration of Google Services
+
+Recommendations: 
+Think of this as “how a senior engineer would use Antigravity intentionally”, not vibe‑coding.
+
+**Create the following files (ARTIFACTS):**
+/ARCHITECTURE.md
+/ASSUMPTIONS.md
+/SECURITY.md
+/ACCESSIBILITY.md
+/TESTING.md
+
+They are control surfaces for Antigravity.
+In Antigravity terms: these are Artifacts the agent can reason against instead of improvising.
+
+**ARCHITECTURE.md (10–15 lines only)**
+Purpose: prevent architectural sprawl.
+Include:
+
+Frontend: static web UI (no framework escalation)
+Backend: Cloud Run API
+Data: Firestore (collections listed, no joins)
+AI: Gemini via backend only
+No background jobs, no streaming, no sensors
+
+This file is your “do not exceed” guardrail.
+
+**ASSUMPTIONS.md**
+Purpose: stop overengineering and judge confusion.
+Include:
+
+Wait times are approximate
+Human confirmation > automation
+No camera or sensor data
+MVP demo scale only
+
+Judges like explicit assumptions.
+
+**SECURITY.md**
+Purpose: show intentional responsibility.
+Include:
+
+Auth required for writes
+Role separation (attendee vs staff)
+No PII
+API keys server‑side only
+
+This directly maps to Security scoring.
+
+**ACCESSIBILITY.md**
+Purpose: bake inclusion into design.
+Include:
+
+Keyboard navigation required
+No color‑only signals
+Plain‑language responses
+Reduced motion preference respected
+
+This prevents UI regressions later.
+
+**TESTING.md**
+Purpose: avoid “no tests” penalty.
+Include:
+
+Unit tests for aggregation logic
+Validation tests for API inputs
+Manual accessibility checklist
+
+Even minimal tests score well if intentional.
 
