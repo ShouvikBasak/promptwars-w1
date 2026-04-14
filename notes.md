@@ -80,7 +80,7 @@ Submissions will be reviewed on:
 
 ## IDEATION: Prompt to brainstorm ideas
 
-**Initial prompt to Copilot for ideation**
+Initial prompt to Copilot for ideation
 
 I am participating in the Google PromptWars Hackathon, and I need to design a solution that improves the physical event experience for attendees at large-scale sporting venues. The system should address challenges such as crowd movement, waiting times, and real-time coordination, while ensuring a seamless and enjoyable experience. I have $5 credit to use Google Cloud, Gemini API, and Firebase for my project. Can you help me brainstorm some ideas on how to approach this problem?
 
@@ -94,11 +94,11 @@ Can you help me brainstorm some ideas on how to approach this problem and design
 
 ## Planning phase - laying the foundations
 
-Based on the above I have done the following:
+Based on the above, have done the following:
 
 - Created a git repo "promptwars-w1" which is private now and will make public once my project is ready for submission
 - Cloned the git repo locally and opened using Antigravity
-- Created the README.md just as stated above
+- Created the README.md
 
 What are now the best practices to build the project using Antigravity. Before I actually start building the project I would go step by step setting up the best practices and follow accordingly so that the foundations are strong and the code base meets all the criteria for AI to evaluate the following parameters:
     Code Quality – structure, readability, maintainability
@@ -108,20 +108,34 @@ What are now the best practices to build the project using Antigravity. Before I
     Accessibility – inclusive and usable design
     Google Services – meaningful integration of Google Services
 
-Recommendations: 
+Recommendations:
 Think of this as “how a senior engineer would use Antigravity intentionally”, not vibe‑coding.
 
-**Create the following files (ARTIFACTS):**
+### Create RULES
+
+### Create ARTIFACTS
+
+Make Antigravity “auditable” in your repo (this is a differentiator)
+
+Add a /prompts folder and commit:
+
+- SPEC.md (problem → constraints → MVP scope → non-goals)
+- PROMPT_STRATEGY.md (your prompting rules, safety constraints, how you used artifacts)
+- ARCHITECTURE.md (diagram + data model)
+- WALKTHROUGH.md (screenshots, how to run, test evidence)
+
+This mirrors what strong PromptWars repos often do (public examples show prompt strategy + architecture docs as first-class artifacts).
+
+They are control surfaces for Antigravity. In Antigravity terms: these are Artifacts the agent can reason against instead of improvising.
+
 /ARCHITECTURE.md
 /ASSUMPTIONS.md
 /SECURITY.md
 /ACCESSIBILITY.md
 /TESTING.md
 
-They are control surfaces for Antigravity.
-In Antigravity terms: these are Artifacts the agent can reason against instead of improvising.
+#### ARCHITECTURE.md (10–15 lines only)
 
-**ARCHITECTURE.md (10–15 lines only)**
 Purpose: prevent architectural sprawl.
 Include:
 
@@ -133,7 +147,8 @@ No background jobs, no streaming, no sensors
 
 This file is your “do not exceed” guardrail.
 
-**ASSUMPTIONS.md**
+#### ASSUMPTIONS.md
+
 Purpose: stop overengineering and judge confusion.
 Include:
 
@@ -144,7 +159,8 @@ MVP demo scale only
 
 Judges like explicit assumptions.
 
-**SECURITY.md**
+#### SECURITY.md
+
 Purpose: show intentional responsibility.
 Include:
 
@@ -155,7 +171,8 @@ API keys server‑side only
 
 This directly maps to Security scoring.
 
-**ACCESSIBILITY.md**
+#### ACCESSIBILITY.md
+
 Purpose: bake inclusion into design.
 Include:
 
@@ -166,7 +183,8 @@ Reduced motion preference respected
 
 This prevents UI regressions later.
 
-**TESTING.md**
+#### TESTING.md
+
 Purpose: avoid “no tests” penalty.
 Include:
 
@@ -176,3 +194,19 @@ Manual accessibility checklist
 
 Even minimal tests score well if intentional.
 
+## References
+
+- [Arena AI: The Official AI Ranking & LLM Leaderboard](https://arena.ai/)
+- [OpenRouter - Unified interface for LLMs](https://openrouter.ai/)
+- [cursor.directory - Rules](https://cursor.directory/plugins?q=rules) (for setting up project rules in Antigravity and other coding assistants)
+
+## Evaluation Focus
+
+|Focus Area|How this design helps|
+|----------|---------------------|
+|Code quality|Clear separation: attendee vs ops logic|
+|Security|Justifiable role separation (even if simple)|
+|Efficiency|Human-in-loop avoids heavy ML / sensors|
+|Testing|Easy to unit-test decision logic|
+|Accessibility|Ops UI can be keyboard-only|
+|Google servicesFirebase Auth + Firestore + Gemini|
