@@ -136,3 +136,61 @@ They are control surfaces for Antigravity. In Antigravity terms: these are Artif
 |Testing|Easy to unit-test decision logic|
 |Accessibility|Ops UI can be keyboard-only|
 |Google servicesFirebase Auth + Firestore + Gemini|
+
+
+## Phase 1 — Scope Lock & Planning (NO CODE)
+
+Goal: Freeze scope and architecture so the agent cannot drift later.
+
+### Prompt 1.1 — Scope Alignment & Risk Check
+
+You are acting as a senior software architect reviewing an AI‑assisted hackathon project.
+
+Read the following files carefully:
+- README.md
+- ARCHITECTURE.md
+- ASSUMPTIONS.md
+- ACCESSIBILITY.md
+- SECURITY.md
+- TESTING.md
+- SPEC.md
+
+Your task:
+1. Verify that the scope is cohesive and realistic for a demo‑ready MVP.
+2. Identify any scope ambiguity or over‑engineering risk.
+3. Propose clarifications ONLY if strictly necessary.
+
+Constraints:
+- Do NOT generate any code.
+- Do NOT suggest new features.
+- Keep the response concise (max 20 bullet points).
+
+Output:
+Create a markdown artifact named IMPLEMENTATION_SCOPE_REVIEW.md.
+
+### Prompt 1.2 — Implementation Plan (Controlled)
+
+Based strictly on:
+- README.md
+- ARCHITECTURE.md
+- ASSUMPTIONS.md
+- ACCESSIBILITY.md
+- SECURITY.md
+- TESTING.md
+- SPEC.md
+- IMPLEMENTATION_SCOPE_REVIEW.md
+
+Create a high‑level implementation plan.
+
+Rules:
+- Maximum 12 steps.
+- Each step must map directly to content in README.md.
+- No step may introduce a new capability not already described.
+- Absolutely no code generation.
+
+Output:
+Create a markdown artifact named IMPLEMENTATION_PLAN.md.
+
+
+
+

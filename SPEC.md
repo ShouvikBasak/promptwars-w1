@@ -21,3 +21,21 @@ Out of scope:
 - Predictive crowd modeling
 - Ticketing, payments, or identity systems
 - Advanced analytics dashboards
+
+### Confidence and Aggregation Logic
+
+Wait‑time confidence is intentionally defined as a **simple time‑decay average**.
+
+Rules:
+- Newer inputs carry higher weight than older inputs
+- No complex heuristics, machine learning, or multi‑factor scoring
+- Staff confirmation always overrides automated confidence values
+
+This constraint is intentional to maintain clarity, reliability, and implementation simplicity.
+
+### Location Context
+
+User location is captured via **explicit manual selection** (e.g., choosing a Venue Zone or Area)
+rather than relying on device GPS.
+
+This approach avoids indoor location inaccuracies and ensures predictable demo behavior.
