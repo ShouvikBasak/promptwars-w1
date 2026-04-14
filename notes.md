@@ -113,92 +113,18 @@ Think of this as “how a senior engineer would use Antigravity intentionally”
 
 ### Create RULES
 
-### Create ARTIFACTS
+### Create CONSTRAINTS
 
 Make Antigravity “auditable” in your repo (this is a differentiator)
 
-Add a /prompts folder and commit:
-
-- SPEC.md (problem → constraints → MVP scope → non-goals)
-- PROMPT_STRATEGY.md (your prompting rules, safety constraints, how you used artifacts)
-- ARCHITECTURE.md (diagram + data model)
-- WALKTHROUGH.md (screenshots, how to run, test evidence)
-
-This mirrors what strong PromptWars repos often do (public examples show prompt strategy + architecture docs as first-class artifacts).
-
 They are control surfaces for Antigravity. In Antigravity terms: these are Artifacts the agent can reason against instead of improvising.
 
+/SPECS.md
 /ARCHITECTURE.md
 /ASSUMPTIONS.md
 /SECURITY.md
 /ACCESSIBILITY.md
 /TESTING.md
-
-#### ARCHITECTURE.md (10–15 lines only)
-
-Purpose: prevent architectural sprawl.
-Include:
-
-Frontend: static web UI (no framework escalation)
-Backend: Cloud Run API
-Data: Firestore (collections listed, no joins)
-AI: Gemini via backend only
-No background jobs, no streaming, no sensors
-
-This file is your “do not exceed” guardrail.
-
-#### ASSUMPTIONS.md
-
-Purpose: stop overengineering and judge confusion.
-Include:
-
-Wait times are approximate
-Human confirmation > automation
-No camera or sensor data
-MVP demo scale only
-
-Judges like explicit assumptions.
-
-#### SECURITY.md
-
-Purpose: show intentional responsibility.
-Include:
-
-Auth required for writes
-Role separation (attendee vs staff)
-No PII
-API keys server‑side only
-
-This directly maps to Security scoring.
-
-#### ACCESSIBILITY.md
-
-Purpose: bake inclusion into design.
-Include:
-
-Keyboard navigation required
-No color‑only signals
-Plain‑language responses
-Reduced motion preference respected
-
-This prevents UI regressions later.
-
-#### TESTING.md
-
-Purpose: avoid “no tests” penalty.
-Include:
-
-Unit tests for aggregation logic
-Validation tests for API inputs
-Manual accessibility checklist
-
-Even minimal tests score well if intentional.
-
-## References
-
-- [Arena AI: The Official AI Ranking & LLM Leaderboard](https://arena.ai/)
-- [OpenRouter - Unified interface for LLMs](https://openrouter.ai/)
-- [cursor.directory - Rules](https://cursor.directory/plugins?q=rules) (for setting up project rules in Antigravity and other coding assistants)
 
 ## Evaluation Focus
 

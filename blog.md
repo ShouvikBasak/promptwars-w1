@@ -9,17 +9,22 @@
 
 ## Ideation phase
 
+Coneptualize the idea and define the functional scope.
+
+Build the README.md
+
 ## Planning phase - laying the foundations
 
 Think of this as “how a senior engineer would use Antigravity intentionally”, not vibe‑coding.
 
-- Define Rules
+### Define Rules
+.agents/rules
+- general.md
+- front-end.md
+- etc.
 
-
-
-
-
-Create the following files (ARTIFACTS):
+### Constraint Engoineering
+/SPEC.md
 /ARCHITECTURE.md
 /ASSUMPTIONS.md
 /SECURITY.md
