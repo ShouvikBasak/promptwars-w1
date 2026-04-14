@@ -181,7 +181,7 @@ Based strictly on:
 - SECURITY.md
 - TESTING.md
 - SPEC.md
-- IMPLEMENTATION_SCOPE_REVIEW_v2.md
+- Implementation_Scope_Review_v2.md
 
 Create a high‑level implementation plan.
 
