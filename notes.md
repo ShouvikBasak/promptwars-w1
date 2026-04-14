@@ -168,6 +168,9 @@ Constraints:
 Output:
 Create a markdown artifact named IMPLEMENTATION_SCOPE_REVIEW.md.
 
+Actions:
+Update files to include clarifications and reduce ambiguitys. Ask the Agent again to review and provide a findings in v2 of the file.
+
 ### Prompt 1.2 — Implementation Plan (Controlled)
 
 Based strictly on:
