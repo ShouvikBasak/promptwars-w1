@@ -201,8 +201,9 @@ Create a markdown artifact named IMPLEMENTATION_PLAN.md.
 
 Goal: Lock interfaces before code so quality + efficiency are automatic.
 
-### Prompt 2.1 — Firestore Data Model (Minimal by Design)
+### Prompt 2.1 — Firestore Data Model
 Mode: Agent
+Impact: Efficiency, Maintainability, Security
 
 Define the Cloud Firestore data model for this project.
 
@@ -228,9 +229,61 @@ Create a markdown artifact named DATA_MODEL.md.
 
 Do NOT generate code.
 
-Impact: Efficiency, Maintainability, Security
+### Prompt 2.2 — Backend API Contract
+Mode: Agent
+Impact: This prevents “one more endpoint” creep.
 
-### 
+Define the backend API contract for Cloud Run.
+
+Requirements:
+- List endpoints with purpose.
+- Describe request and response structures.
+- Explicitly state validation rules.
+- Specify error handling behavior.
+
+Constraints:
+- Only endpoints required by README.md.
+- No background jobs, no streaming, no webhooks.
+
+Output:
+Create a markdown artifact named API_CONTRACT.md.
+
+No code generation.
+
+### Prompt 2.3 — Gemini AI Contract (Extremely Important)
+Mode: Agent
+
+This file protects: Cost, Safety, Testability,Judge trust
+
+Define the AI assistant behavior as a strict contract.
+
+Inputs:
+- User context (location, nearby POIs)
+- Aggregated crowd data
+- Optional accessibility preferences
+
+Outputs:
+- JSON only
+- Fixed schema
+- Max 3 recommendation options
+- Plain language explanations
+
+Rules:
+- No hallucinated facts.
+- No external knowledge assumptions.
+- No output longer than 120 tokens.
+- If confidence is low, assistant must state uncertainty.
+
+Output:
+Create a markdown artifact named AI_CONTRACT.md.
+
+Do NOT generate code.
+
+
+
+
+
+
 
 
 
