@@ -2,7 +2,7 @@ import os
 import json
 from datetime import datetime, timezone, timedelta
 from typing import List, Optional
-from fastapi import FastAPI, HTTPException, Depends
+from fastapi import FastAPI, HTTPException, Header, Depends
 from pydantic import BaseModel, Field
 import google.generativeai as genai
 
@@ -133,13 +133,20 @@ async def get_recommendation(
 
 @app.post("/api/signals", response_model=SignalResponse)
 async def submit_signal(
-    request: SignalRequest, 
-    uid: str = Depends(verify_auth_token)
+    request: SignalRequest,
+    authorization: str = Header(None)
 ):
     """
     Writes raw signal into Firestore, strictly mapping to explicitly allowed properties.
     Executes TTL-bounded aggregation and updates parent POI dynamically.
+    Role-based auth: staff claims require verify_staff_token to prevent role spoofing.
     """
+    # Escalate auth requirements based on claimed role
+    if request.submitterRole == "staff":
+        uid = verify_staff_token(authorization)
+    else:
+        uid = verify_auth_token(authorization)
+
     now = datetime.now(timezone.utc)
     expiresAt = now + timedelta(minutes=15)
     

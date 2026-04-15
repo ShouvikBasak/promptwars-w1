@@ -4,6 +4,8 @@ from pydantic import BaseModel
 
 # Input model based strictly on DATA_MODEL.md wait_signals
 class WaitSignal(BaseModel):
+    model_config = {"extra": "ignore"}
+
     waitMinutes: int
     submitterRole: str  # 'attendee' or 'staff'
     createdAt: datetime

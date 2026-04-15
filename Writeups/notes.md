@@ -629,7 +629,47 @@ Requirements:
 Output:
 Modify requirements.txt only.
 
-### 
+### Prompt C — Make WaitSignal robust to extra Firestore fields (prevent runtime crash)
+
+Fix aggregation.py so WaitSignal creation does not fail when Firestore documents contain extra fields.
+
+Requirements:
+- Keep WaitSignal fields as-is (waitMinutes, submitterRole, createdAt).
+- Configure Pydantic so extra keys in the input dict do not raise validation errors.
+- Do not add new logic beyond this.
+
+Output:
+Modify aggregation.py only.
+
+### Prompt D — Enforce staff role for staff signals (security points)
+
+Harden /api/signals security in main.py.
+
+Requirements:
+- If request.submitterRole == "staff", require verify_staff_token.
+- If request.submitterRole == "attendee", verify_auth_token is sufficient.
+- Keep response and schema unchanged.
+
+Constraints:
+- Do not add new endpoints.
+- Keep changes minimal and readable.
+
+Output:
+Modify main.py only.
+
+### Prompt E — Fix query_pois_by_zone to include POI id
+
+Update firestore_client.py helper query_pois_by_zone so each returned POI includes its document id.
+
+Requirement:
+- Return list items like: {"id": doc.id, ...doc.to_dict()}
+
+Output:
+Modify firestore_client.py only.
+
+
+
+
 
 
 

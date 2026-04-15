@@ -72,6 +72,6 @@ def create_broadcast(zone: str, b_type: str, name: str, message: str, uid: str, 
     return doc_ref.id
 
 def query_pois_by_zone(zone: str) -> list:
-    """Return all POI documents matching a specific zone."""
+    """Return all POI documents matching a specific zone, each including its document ID."""
     docs = db.collection('pois').where("zone", "==", zone).stream()
-    return [d.to_dict() for d in docs]
+    return [{"id": d.id, **d.to_dict()} for d in docs]
