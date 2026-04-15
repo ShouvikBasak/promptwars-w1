@@ -279,7 +279,36 @@ Create a markdown artifact named AI_CONTRACT.md.
 
 Do NOT generate code.
 
+## Phase 3 — Controlled Code Generation (Now Coding Begins)
 
+Rule: One layer at a time. Never mix responsibilities.
+
+### Prompt 3.1 — Backend Skeleton (Cloud Run)
+Mode: Agent
+Language: Python
+GCP Project ID: promptwars-hackathon-493401 
+
+Generate a minimal Cloud Run backend service.
+
+Must comply with:
+- API_CONTRACT.md
+- AI_CONTRACT.md
+- SECURITY.md
+
+Requirements:
+- One endpoint: /recommend
+- Input validation enforced
+- Gemini API called server‑side only
+- JSON responses only
+- Clear comments explaining logic
+- Python programming language
+
+Constraints:
+- No features not listed in API_CONTRACT.md
+- No frontend code
+- No database writes yet
+
+Generate code only.
 
 
 
