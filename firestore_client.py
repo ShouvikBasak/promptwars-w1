@@ -1,25 +1,52 @@
-import firebase_admin
-from firebase_admin import firestore
+import os
 
-# Initialize using Application Default Credentials (ADC)
-try:
-    firebase_admin.initialize_app()
-except ValueError:
-    pass
+# Lazy-initialize Firestore to avoid import-time crashes in test environments
+_db = None
 
-# Export the db instance for backend consumption directly if needed
-db = firestore.client()
+def _get_db():
+    """
+    Returns a Firestore client, initializing Firebase on first call.
+    Uses Application Default Credentials (ADC) per SECURITY.md — no secrets in code.
+    """
+    global _db
+    if _db is not None:
+        return _db
+
+    import firebase_admin
+    from firebase_admin import firestore
+
+    try:
+        firebase_admin.initialize_app()
+    except ValueError:
+        # App already initialized (e.g. hot-reload)
+        pass
+
+    _db = firestore.client()
+    return _db
+
+# Public property — compatible with existing `from firestore_client import db` usage
+class _DbProxy:
+    """Proxy that defers Firestore init until first attribute access."""
+    def __getattr__(self, name):
+        return getattr(_get_db(), name)
+
+db = _DbProxy()
+
+# --- Helper functions strictly mapping to DATA_MODEL.md collections ---
 
 def get_poi(poi_id: str) -> dict:
+    """Read a single POI document by ID."""
     doc = db.collection('pois').document(poi_id).get()
     if doc.exists:
         return doc.to_dict()
     return None
 
 def update_poi_aggregate(poi_id: str, fields: dict):
+    """Merge updated aggregation fields into the POI document."""
     db.collection('pois').document(poi_id).set(fields, merge=True)
 
 def create_wait_signal(poi_id: str, waitMinutes: int, submitterRole: str, uid: str, createdAt, expiresAt):
+    """Write a single ephemeral wait signal into the wait_signals collection."""
     db.collection('wait_signals').add({
         "poiId": poi_id,
         "waitMinutes": waitMinutes,
@@ -32,6 +59,7 @@ def create_wait_signal(poi_id: str, waitMinutes: int, submitterRole: str, uid: s
     })
 
 def create_broadcast(zone: str, b_type: str, name: str, message: str, uid: str, createdAt, expiresAt) -> str:
+    """Write a broadcast document and return its auto-generated ID."""
     _, doc_ref = db.collection('broadcasts').add({
         "zone": zone,
         "type": b_type,
@@ -44,5 +72,6 @@ def create_broadcast(zone: str, b_type: str, name: str, message: str, uid: str, 
     return doc_ref.id
 
 def query_pois_by_zone(zone: str) -> list:
+    """Return all POI documents matching a specific zone."""
     docs = db.collection('pois').where("zone", "==", zone).stream()
     return [d.to_dict() for d in docs]

@@ -591,6 +591,48 @@ Constraints:
 Output:
 Create tests/ folder and add test files. Update requirements.txt if needed.
 
+## FIXES as recommended by Copilot after reviewing `main.py` and `aggregation.py`
+
+### Prompt A — Fix [main.py] endpoint structure
+
+Fix main.py so it is valid FastAPI code.
+
+Requirements:
+- Ensure all endpoint decorators are defined at module scope (not nested).
+- Fully implement these endpoints exactly:
+  - POST /api/recommendations
+  - POST /api/signals
+  - POST /api/broadcasts
+- Keep behavior aligned with API_CONTRACT.md and AI_CONTRACT.md.
+- Use firestore_client.py helpers for DB reads/writes.
+
+Constraints:
+- Do not introduce new endpoints or features.
+- Keep code minimal and readable.
+
+Output:
+Modify main.py only.
+
+### Prompt B — Fix dependencies in [requirements.txt]  (security + efficiency)
+
+Update requirements.txt to match actual imports and remove unused dependencies.
+
+Context:
+- main.py uses fastapi, uvicorn, pydantic, google.generativeai
+- firestore_client.py and auth.py use firebase_admin
+- firestore access is via firebase_admin.firestore, not google-cloud-firestore directly
+
+Requirements:
+- Add missing runtime dependencies required by the current code.
+- Remove packages not used by this repo (to reduce attack surface and improve efficiency).
+
+Output:
+Modify requirements.txt only.
+
+### 
+
+
+
 
 
 

@@ -2,7 +2,7 @@ import os
 import json
 from datetime import datetime, timezone, timedelta
 from typing import List, Optional
-from fastapi import FastAPI, HTTPException, Header, Depends
+from fastapi import FastAPI, HTTPException, Depends
 from pydantic import BaseModel, Field
 import google.generativeai as genai
 
@@ -160,7 +160,14 @@ async def submit_signal(
         .where('createdAt', '>=', cutoff)\
         .stream()
         
-    signal_objects = [ WaitSignal(**data) for data in (doc.to_dict() for doc in signals_query) ]
+    signal_objects = [
+        WaitSignal(
+            waitMinutes=data.get('waitMinutes', 0),
+            submitterRole=data.get('submitterRole', 'attendee'),
+            createdAt=data.get('createdAt')
+        )
+        for data in (doc.to_dict() for doc in signals_query)
+    ]
         
     agg_result = aggregate_poi_wait_time(signal_objects, now)
     
