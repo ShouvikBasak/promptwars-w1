@@ -25,6 +25,8 @@ def test_time_decay_behavior():
     
     # The outcome heavily favors the 5m signal due to freshness weight
     assert result["currentWaitMinutes"] < 10
+    assert isinstance(result["currentWaitMinutes"], int)
+    assert 0.0 <= result["confidenceScore"] <= 1.0
 
 def test_confidence_behavior_deterministic():
     now = datetime.now(timezone.utc)

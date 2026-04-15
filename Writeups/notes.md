@@ -667,6 +667,29 @@ Requirement:
 Output:
 Modify firestore_client.py only.
 
+### Prompt F — Add minimal tests
+Once the backend starts cleanly locally, add tests (fast wins).
+
+Create minimal automated tests using pytest.
+
+Requirements:
+- tests/test_aggregation.py:
+  - TTL exclusion (>15 minutes ignored)
+  - staff override takes precedence and sets confidenceScore=1.0
+  - time-decay average returns an int wait time and confidence in 0..1
+- tests/test_api_validation.py:
+  - /api/signals rejects waitMinutes <0 or >120
+  - /api/broadcasts rejects name >50 or message >200
+
+Constraints:
+- Keep tests small and readable.
+- Avoid real Firestore calls in unit tests (mock where needed).
+
+Output:
+Create tests/ folder and add test files. Update requirements.txt if needed.
+
+
+
 
 
 

@@ -57,6 +57,26 @@ def test_broadcasts_rejects_long_message():
     assert response.status_code == 422
     assert "message" in response.text
 
+def test_broadcasts_rejects_long_name():
+    """
+    Ensures broadcast name cannot exceed 50 characters.
+    """
+    oversized_name = "B" * 51
+
+    response = client.post(
+        "/api/broadcasts",
+        headers=AUTH_HEADER,
+        json={
+            "zone": "North Section",
+            "type": "info",
+            "name": oversized_name,
+            "message": "Short message"
+        }
+    )
+
+    assert response.status_code == 422
+    assert "name" in response.text
+
 def test_recommendations_rejects_excess_pois():
     """
     Asserts security protections bounding arrays from overwhelming CPU parsing context limits.
