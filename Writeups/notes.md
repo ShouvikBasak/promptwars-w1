@@ -195,5 +195,12 @@ Output:
 Create a markdown artifact named IMPLEMENTATION_PLAN.md.
 
 
+## Phase 2 — Data, API & AI Contracts (Still NO UI)
+
+Goal: Lock interfaces before code so quality + efficiency are automatic.
+
+
+
+
 
 
