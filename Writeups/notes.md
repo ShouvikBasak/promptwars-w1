@@ -143,6 +143,7 @@ They are control surfaces for Antigravity. In Antigravity terms: these are Artif
 Goal: Freeze scope and architecture so the agent cannot drift later.
 
 ### Prompt 1.1 — Scope Alignment & Risk Check
+Mode: Planning / Agent
 
 You are acting as a senior software architect reviewing an AI‑assisted hackathon project.
 
@@ -172,6 +173,7 @@ Create a markdown artifact named IMPLEMENTATION_SCOPE_REVIEW.md.
 Update files to include clarifications and reduce ambiguitys. Ask the Agent again to review and provide a findings in v2 of the file.
 
 ### Prompt 1.2 — Implementation Plan (Controlled)
+Mode: Planning / Agent
 
 Based strictly on:
 - README.md
@@ -198,6 +200,40 @@ Create a markdown artifact named IMPLEMENTATION_PLAN.md.
 ## Phase 2 — Data, API & AI Contracts (Still NO UI)
 
 Goal: Lock interfaces before code so quality + efficiency are automatic.
+
+### Prompt 2.1 — Firestore Data Model (Minimal by Design)
+Mode: Agent
+
+Define the Cloud Firestore data model for this project.
+
+Input:
+- README.md
+- ARCHITECTURE.md
+- ASSUMPTIONS.md
+- ACCESSIBILITY.md
+- SECURITY.md
+- TESTING.md
+- SPEC.md
+- IMPLEMENTATION_PLAN.md
+
+Rules:
+- Use the fewest collections possible.
+- Each collection must have a clear purpose.
+- No optional fields unless justified.
+- Avoid nested subcollections unless necessary.
+- Include field names, types, and descriptions.
+
+Output:
+Create a markdown artifact named DATA_MODEL.md.
+
+Do NOT generate code.
+
+Impact: Efficiency, Maintainability, Security
+
+### 
+
+
+
 
 
 
