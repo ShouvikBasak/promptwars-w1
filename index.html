@@ -164,7 +164,7 @@
 
             try {
                 // Call minimal python Cloud Run backend
-                const response = await fetch('/recommend', {
+                const response = await fetch('/api/recommendations', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -208,8 +208,8 @@
                 return;
             }
 
-            // Iterate and create accessible cards per requirement
-            recommendations.forEach((rec, idx) => {
+            // Iterate and create accessible cards per requirement (defensively slicing to max 3)
+            recommendations.slice(0, 3).forEach((rec, idx) => {
                 const article = document.createElement('article');
                 article.className = 'recommendation-card';
                 article.tabIndex = 0; // Focusable element

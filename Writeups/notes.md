@@ -373,6 +373,228 @@ Constraints:
 
 Generate code only.
 
+`ops.html` generated and saved in the root directory.
+
+### Prompt 3.5 — Firestore wiring (read path + TTL)
+
+Update main.py to integrate Cloud Firestore following DATA_MODEL.md.
+
+Requirements:
+- Initialize Firestore client safely for Cloud Run.
+- Implement TTL filtering: ignore any wait-time inputs older than 15 minutes.
+- For now, implement read-only behavior (no writes) unless API_CONTRACT.md explicitly includes write endpoints.
+- Ensure Gemini is never called with stale data.
+
+Constraints:
+- Follow SECURITY.md (no secrets in client).
+- Keep code minimal and readable.
+- Add clear comments.
+
+Output:
+Modify main.py and (if needed) create a small firestore_client.py helper.
+
+`firestore_client.py` generated and saved in the root directory.
+
+### Prompt 3.6 — Auth verification
+
+Implement Firebase Auth token verification in main.py.
+
+Requirements:
+- Verify Firebase ID token for any endpoint that modifies data (if such endpoints exist).
+- If only /recommend exists, keep it public-read but rate-limit and validate inputs.
+- Add a minimal auth utility module (auth.py) if helpful.
+
+Constraints:
+- No new features beyond API_CONTRACT.md
+- No secrets in frontend
+- Keep code minimal
+
+Output:
+Modify main.py and add auth.py if needed.
+
+### Prompt 3.7 — Tests
+
+Create minimal automated tests.
+
+Requirements:
+- Unit tests for aggregation.py covering:
+  - TTL exclusion (15 min)
+  - simple time-decay average behavior (as defined in SPEC.md)
+  - confidence behavior (simple, deterministic)
+- API validation test for /recommend request schema.
+
+Constraints:
+- Use pytest
+- Keep tests small and readable
+
+Output:
+Create tests/ folder and required test files.
+
+### Prompt 3.8 — Wire UI to /recommend
+
+Update index.html to call the backend /recommend endpoint.
+
+Requirements:
+- Use the existing manual Zone selection in the UI.
+- Display up to 3 recommendations returned by Gemini (AI_CONTRACT.md JSON schema).
+- Must meet ACCESSIBILITY.md:
+  - keyboard navigable
+  - no color-only indicators
+  - plain language
+
+Constraints:
+- No frameworks or heavy assets
+- Keep repo size small
+
+Output:
+Modify index.html only.
+
+### Prompt 3.9 — Fix main.py structure + align routes to API_CONTRACT
+
+Fix main.py so it is valid FastAPI code and matches API_CONTRACT.md exactly.
+
+Requirements:
+- Ensure all endpoints are defined at module scope (no nested decorators).
+- Endpoints must be exactly:
+  - POST /api/signals
+  - POST /api/broadcasts
+  - POST /api/recommendations
+- Keep existing Pydantic models but adjust only if needed to match API_CONTRACT.md.
+- Add complete implementations (no placeholder bodies).
+
+Constraints:
+- Follow SECURITY.md and AI_CONTRACT.md.
+- Keep code minimal and readable.
+- Do not introduce new endpoints or features.
+
+Output:
+Modify main.py only.
+
+### Prompt 3.10 — Create firestore_client.py and implement Firestore I/O
+This implements your RAW + Aggregates model in DATA_MODEL.md (pois, wait_signals, broadcasts).
+
+Create firestore_client.py and wire Firestore operations needed by main.py.
+
+Must follow DATA_MODEL.md strictly:
+- Collection: pois (aggregated state)
+- Collection: wait_signals (raw inputs with expiresAt = createdAt + 15 minutes)
+- Collection: broadcasts (with expiresAt)
+
+Requirements:
+- Provide a Firestore client `db` usable in Cloud Run.
+- Provide helper functions:
+  - get_poi(poi_id)
+  - update_poi_aggregate(poi_id, fields)
+  - create_wait_signal(poi_id, waitMinutes, submitterRole, uid, createdAt, expiresAt)
+  - create_broadcast(zone, type, name, message, createdAt, expiresAt)
+  - query_pois_by_zone(zone)
+
+Constraints:
+- No new collections.
+- Keep writes minimal and schema strictly typed.
+- No background jobs.
+
+Output:
+Create firestore_client.py and modify main.py only if needed for imports.
+
+### Prompt 3.11 — Implement auth.py (Firebase token validation)
+
+Your API_CONTRACT.md requires auth on these endpoints, and your main.py already imports verify_auth_token and verify_staff_token.
+
+Create or complete auth.py to support Firebase Authentication verification for FastAPI.
+
+Requirements:
+- Implement:
+  - verify_auth_token(): returns uid (string) or raises HTTPException(401)
+  - verify_staff_token(): returns uid (string) or raises HTTPException(403/401)
+- Use Authorization: Bearer <token> header.
+- Keep implementation minimal, production-safe, and readable.
+- If full Firebase Admin SDK verification is too heavy, implement a clearly marked stub mode for local dev that is disabled by default and requires an env flag to enable.
+
+Constraints:
+- Do not store secrets in code.
+- Do not change endpoint contracts.
+- Avoid adding heavy dependencies unless necessary.
+
+Output:
+Create auth.py and update requirements.txt if required.
+
+### Prompt 3.12 — Finish RAW→Aggregate logic in aggregation.py and use it in /api/signals
+Your aggregation.py currently defines WaitSignal and a stubbed function; now you need full logic per your earlier constraints: 15-min window, time decay, staff override priority.
+
+Complete aggregation.py and integrate it into main.py /api/signals flow.
+
+Requirements:
+- Implement aggregate_poi_wait_time(signals, current_time) to return:
+  - newAggregatedWaitMinutes (int)
+  - confidenceScore (float 0..1)
+  - isStaffOverride (bool)
+- Rules:
+  - Only consider signals within last 15 minutes (createdAt cutoff).
+  - Use a simple time-decay average (no complex heuristics).
+  - If any staff signal exists in the window, it overrides and sets isStaffOverride=true and confidenceScore=1.0.
+- main.py /api/signals must:
+  - write signal to wait_signals
+  - read TTL-window signals for poiId
+  - compute aggregate
+  - update pois document
+
+Constraints:
+- Keep code minimal and testable.
+- No background jobs, no extra features.
+
+Output:
+Modify aggregation.py and main.py.
+
+### Prompt 3.13 — Implement Gemini call for /api/recommendations (JSON-only enforcement)
+
+Your AI contract is strict: JSON only, max 3 options, max 120 tokens, no hallucinations.
+
+Implement /api/recommendations in main.py following AI_CONTRACT.md.
+
+Requirements:
+- Fetch POIs for the provided zone (from Firestore).
+- Pass only these fields to Gemini: id, type, currentWaitMinutes, confidenceScore, and the user's accessibilityPreferences.
+- Enforce AI output:
+  - Must be JSON only
+  - Must match fixed schema: {"recommendations": [ ... max 3 ... ]}
+  - Must be <= 120 tokens
+- If output is not valid JSON or schema mismatch, return 503 with safe error message.
+
+Constraints:
+- No external knowledge assumptions.
+- No extra endpoints.
+- Keep code minimal and readable.
+
+Output:
+Modify main.py only.
+
+### Prompt 3.14 — Add minimal tests (fast wins for judging)
+This is the minimum that earns real “Testing” points.
+
+Create minimal automated tests using pytest.
+
+Requirements:
+- tests/test_aggregation.py:
+  - TTL window exclusion
+  - time-decay average produces expected value
+  - staff override behavior
+- tests/test_api_validation.py:
+  - /api/signals rejects invalid waitMinutes
+  - /api/broadcasts rejects message > 200 chars
+  - /api/recommendations rejects nearbyPOIs > 20 (if validated)
+
+Constraints:
+- Keep tests small and readable.
+- Avoid Firestore dependency in unit tests (mock where needed).
+
+Output:
+Create tests/ folder and add test files. Update requirements.txt if needed.
+
+
+
+
+
 
 
 
