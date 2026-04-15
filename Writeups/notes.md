@@ -310,6 +310,77 @@ Constraints:
 
 Generate code only.
 
+The generated file is saved as `main.py` in the root directory. This becomes the foundation file.
+
+```
+The code has been successfully saved to the repository as main.py. This serves as your minimal, validated FastAPI foundation file, perfectly aligned with the constraints outlind in your API and AI contracts.
+
+Let me know if you would like me to set up a requirements.txt file for it or if you have the next prompt ready!
+```
+
+`requirements.txt` generated. Created but not yet installed locally
+
+### Prompt 3.2 — Data Aggregation Logic
+
+Extend the backend to include crowd data aggregation logic.
+
+Rules:
+- Must follow DATA_MODEL.md exactly.
+- Aggregation must be time‑bounded.
+- Include confidence scoring logic.
+
+Constraints:
+- Keep logic simple and readable.
+- No premature optimizations.
+
+Generate only the related code section and explain briefly.
+
+`aggregation.py` generated and saved in the root directory.
+
+
+### Prompt 3.3 — Attendee UI (Minimal & Accessible)
+
+Generate the attendee web UI.
+
+Requirements:
+- Reads recommendations from /recommend
+- Displays wait times clearly
+- Keyboard navigable
+- No color‑only indicators
+
+Constraints:
+- Minimal HTML/CSS/JS
+- No images or heavy assets
+- Must respect ACCESSIBILITY.md
+
+Generate code only.
+
+`index.html` generated and saved in the root directory.
+
+### Prompt 3.4 — Staff Ops View (Intentional Minimalism)
+
+Generate a minimal staff operations view.
+
+Requirements:
+- View current POI status
+- Update wait times
+- Send short broadcast messages
+
+Constraints:
+- No analytics dashboards
+- No charts
+- Reuse existing styles where possible
+
+Generate code only.
+
+
+
+
+
+
+
+
+
 
 
 

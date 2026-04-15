@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StadiumFlow Attendee App</title>
+    <style>
+        /* Minimal, strict high-contrast mode for accessibility */
+        :root {
+            --bg-color: #121212;
+            --text-color: #ffffff;
+            --card-bg: #2a2a2a;
+            --border-color: #555555;
+            --focus-outline: #ffeb3b; 
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: system-ui, -apple-system, sans-serif;
+            margin: 0;
+            padding: 1.5rem;
+            line-height: 1.6;
+        }
+
+        main {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* Essential focus rings for pure keyboard navigation */
+        *:focus {
+            outline: 3px solid var(--focus-outline);
+            outline-offset: 2px;
+        }
+
+        .controls-panel {
+            background: var(--card-bg);
+            padding: 1.5rem;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            margin-bottom: 2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        label {
+            font-weight: 600;
+        }
+
+        select, button, input[type="checkbox"] {
+            font-size: 1rem;
+            padding: 0.75rem;
+            background-color: #ffffff;
+            color: #000000;
+            border: 2px solid var(--border-color);
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        button {
+            font-weight: bold;
+            margin-top: 1rem;
+        }
+
+        button:hover, button:focus {
+            background-color: #e0e0e0;
+        }
+
+        .recommendation-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-left: 6px solid #4caf50;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-radius: 4px;
+        }
+
+        /* Explicit text labels enforcing "No color-only indicators" rule */
+        .text-badge {
+            display: inline-block;
+            border: 1px solid var(--text-color);
+            padding: 0.2rem 0.6rem;
+            border-radius: 4px;
+            font-weight: bold;
+            font-size: 0.85rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .badge-warning {
+            border-color: #ff9800;
+            /* Explicit word "Caution" is written in the DOM so color blindness doesn't inhibit understanding */
+        }
+
+        .error-box {
+            border: 2px solid #ff5252;
+            padding: 1rem;
+            background-color: #3b0000;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <main>
+        <header>
+            <h1>StadiumFlow</h1>
+            <p>Smart Event Assistant</p>
+        </header>
+
+        <section class="controls-panel" aria-labelledby="context-heading">
+            <h2 id="context-heading">Your Location Context</h2>
+            
+            <label for="zone-select">Current Zone:</label>
+            <select id="zone-select" aria-required="true">
+                <option value="North Entrance">North Entrance</option>
+                <option value="South Concourse">South Concourse</option>
+                <option value="Section 105">Section 105</option>
+            </select>
+
+            <fieldset style="border: 1px solid var(--border-color); padding: 1rem; border-radius: 4px;">
+                <legend style="font-weight: 600;">Accessibility Needs (Optional)</legend>
+                <label style="display: block; margin-bottom: 0.5rem;">
+                    <input type="checkbox" id="pref-wheelchair" value="wheelchair_accessible">
+                    Wheelchair Accessible
+                </label>
+                <label style="display: block;">
+                    <input type="checkbox" id="pref-family" value="family_restroom">
+                    Family Restroom
+                </label>
+            </fieldset>
+
+            <button id="fetch-btn" aria-live="polite">Find Best Routes</button>
+        </section>
+
+        <!-- Dynamic Live Region for screen readers -->
+        <section id="results-area" aria-live="polite"></section>
+    </main>
+
+    <script>
+        document.getElementById('fetch-btn').addEventListener('click', handleFetch);
+
+        async function handleFetch() {
+            const btn = document.getElementById('fetch-btn');
+            const resultsArea = document.getElementById('results-area');
+            const zone = document.getElementById('zone-select').value;
+            
+            // Collect selected filters
+            const prefs = [];
+            if(document.getElementById('pref-wheelchair').checked) prefs.push("wheelchair_accessible");
+            if(document.getElementById('pref-family').checked) prefs.push("family_restroom");
+
+            // UI Loading State
+            btn.textContent = "Analyzing crowd data...";
+            btn.setAttribute('aria-busy', 'true');
+            resultsArea.innerHTML = '<p>Evaluating real-time wait times...</p>';
+
+            // Stubbing live POI data for minimal prototype frontend execution
+            const stubNearbyPOIs = [
+                { id: "R-101", type: "restroom", currentWaitMinutes: 14, confidenceScore: 0.9 },
+                { id: "C-205", type: "concession", currentWaitMinutes: 4, confidenceScore: 0.3 }
+            ];
+
+            try {
+                // Call minimal python Cloud Run backend
+                const response = await fetch('/recommend', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer STUB_AUTH_TOKEN'
+                    },
+                    body: JSON.stringify({
+                        zone: zone,
+                        accessibilityPreferences: prefs,
+                        nearbyPOIs: stubNearbyPOIs
+                    })
+                });
+
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+                const data = await response.json();
+                
+                // Unpack Gemini's encapsulated JSON as defined by our AI_CONTRACT.md
+                const aiResponse = JSON.parse(data.recommendation);
+                renderUI(aiResponse.recommendations);
+                
+            } catch (err) {
+                console.error("API Error", err);
+                resultsArea.innerHTML = `
+                    <div class="error-box" role="alert">
+                        <p>Status: Connection Error</p>
+                        <p>We couldn't reach the routing assistant. Please try again.</p>
+                    </div>
+                `;
+            } finally {
+                btn.textContent = "Find Best Routes";
+                btn.removeAttribute('aria-busy');
+            }
+        }
+
+        function renderUI(recommendations) {
+            const container = document.getElementById('results-area');
+            container.innerHTML = '<h2>Recommended Options</h2>';
+
+            if (!recommendations || recommendations.length === 0) {
+                container.innerHTML += '<p>No clear recommendations for this zone right now.</p>';
+                return;
+            }
+
+            // Iterate and create accessible cards per requirement
+            recommendations.forEach((rec, idx) => {
+                const article = document.createElement('article');
+                article.className = 'recommendation-card';
+                article.tabIndex = 0; // Focusable element
+                
+                let warningHTML = '';
+                // Satisfies "If confidence is low, assistant must state uncertainty" + "No color-only indicators"
+                if (rec.uncertaintyWarning) {
+                    warningHTML = `
+                        <div class="text-badge badge-warning" aria-label="Caution on accuracy">
+                            Status: Unverified Wait Time - ${rec.uncertaintyWarning}
+                        </div>
+                    `;
+                }
+
+                article.innerHTML = `
+                    <h3 style="margin-top:0;">Destination: ${rec.poiId}</h3>
+                    ${warningHTML}
+                    <p style="font-size: 1.1rem; line-height: 1.5;">
+                        <strong>Recommendation:</strong> ${rec.recommendationText}
+                    </p>
+                `;
+                
+                container.appendChild(article);
+            });
+        }
+    </script>
+</body>
+</html>
