@@ -11,7 +11,19 @@ from aggregation import WaitSignal, aggregate_poi_wait_time
 
 # --- Configuration & Initialization ---
 # Gemini API called server-side only per SECURITY.md
-genai.configure(api_key=os.environ.get("GEMINI_API_KEY", "STUB_API_KEY"))
+DEV_MODE = os.environ.get("DEV_MODE", "").lower() == "true"
+_gemini_api_key = os.environ.get("GEMINI_API_KEY", "")
+
+if not _gemini_api_key:
+    if DEV_MODE:
+        _gemini_api_key = "DEV_STUB_KEY__NOT_FOR_PRODUCTION"
+    else:
+        raise RuntimeError(
+            "GEMINI_API_KEY environment variable is required. "
+            "Set it before starting the server, or enable DEV_MODE=true for local development."
+        )
+
+genai.configure(api_key=_gemini_api_key)
 model = genai.GenerativeModel('gemini-1.5-pro')
 
 app = FastAPI(title="StadiumFlow Full Backend")

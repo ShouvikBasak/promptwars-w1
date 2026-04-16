@@ -688,9 +688,61 @@ Constraints:
 Output:
 Create tests/ folder and add test files. Update requirements.txt if needed.
 
+### Prompt G — Fail fast on missing GEMINI_API_KEY in non-dev mode
 
+Update main.py to fail fast on startup when GEMINI_API_KEY is missing in non-dev mode.
 
+Current behavior to change:
+- genai.configure(api_key=os.environ.get("GEMINI_API_KEY", "STUB_API_KEY"))
 
+Required behavior:
+- If GEMINI_API_KEY is missing or empty AND DEV_MODE is not enabled, raise a RuntimeError during startup with a clear message.
+- DEV_MODE is enabled only when environment variable DEV_MODE == "true".
+- If DEV_MODE == "true", allow missing GEMINI_API_KEY and keep a clearly labeled stub key path for local development only.
+
+Constraints:
+- Do not change any API routes, request/response schemas, or business logic.
+- Keep code minimal and readable.
+- Ensure the error happens at app import/startup time (not inside endpoints).
+
+Output:
+Modify main.py only.
+
+## Deployment
+
+You are the deployment engineer. Deploy this existing repository to Google Cloud Run.
+
+Context:
+- Google Cloud Project ID: promptwars-hackathon-493401
+- Target: Cloud Run (managed)
+- App: FastAPI service in main.py
+- Start command: uvicorn main:app --host 0.0.0.0 --port $PORT
+- Requirements file: requirements.txt
+
+Hard requirements:
+1) Use gcloud to authenticate if required:
+   - gcloud auth login
+   - gcloud auth application-default login
+   - gcloud config set project promptwars-hackathon-493401
+2) Build and deploy to Cloud Run from this repo.
+3) Set required environment variables on the Cloud Run service:
+   - GEMINI_API_KEY=<ask me to paste the value securely if needed>
+   - DEV_MODE=false
+   - USE_AUTH_STUB=true  (for demo only)
+4) Ensure the deployed service listens on $PORT (Cloud Run requirement).
+5) After deployment, verify the service by calling:
+   - POST /api/recommendations
+6) Produce a Walkthrough artifact that includes:
+   - the final Cloud Run service URL
+   - the exact gcloud commands executed (or MCP actions)
+   - verification result (HTTP status + sample response shape)
+   - any changes made to files (if you had to adjust launch command)
+
+Constraints:
+- Do not refactor application logic.
+- Do not add new features.
+- Only make minimal changes required for Cloud Run deployment.
+- If any permission prompt appears for terminal or cloud actions, request my approval before proceeding.
 
 
 
