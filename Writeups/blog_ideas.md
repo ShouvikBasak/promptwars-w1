@@ -43,6 +43,8 @@ That’s when agentic development stopped feeling like “faster coding” and s
 
 I suspect future tools will look less like copilots and more like systems that remember, validate, and explain. 
 
+
+=======
 Making this a series, not a one‑off
 Each post = one insight, one pattern, one question. Future posts can build on this without repetition:
 
@@ -57,7 +59,7 @@ What quotas and limits taught me about designing AI‑assisted systems
 
 Post 4
 Human‑in‑the‑loop isn’t a compromise — it’s an architectural control
-
+=======
 
 
 
