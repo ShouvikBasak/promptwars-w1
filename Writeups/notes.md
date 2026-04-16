@@ -744,6 +744,12 @@ Constraints:
 - Only make minimal changes required for Cloud Run deployment.
 - If any permission prompt appears for terminal or cloud actions, request my approval before proceeding.
 
+### Execute (Review, Modify & Approve) Implementation Plan
+
+Cloud Run URL: 
+https://promptwars-api-1075266329174.us-central1.run.app
+
+
 
 
 
