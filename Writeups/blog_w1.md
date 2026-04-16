@@ -7,7 +7,7 @@ Fast feedback, creative flow, momentum.
 But while working on a PromptWars hackathon build using **Google Antigravity**, I noticed a difference that quietly changed how I approached building a prototype.
 
 The prototype isn’t complete.
-I hit quota limits.
+I hit model quota limits. (on a free plan)
 Some parts are still stubs.
 And yet, the most valuable outcome wasn’t the demo.
 
