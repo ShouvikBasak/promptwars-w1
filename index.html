@@ -3,168 +3,363 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>StadiumFlow Attendee App</title>
+    <title>StadiumFlow | Attendee Hub</title>
+    <!-- Google Fonts: Outfit -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
     <style>
-        /* Minimal, strict high-contrast mode for accessibility */
         :root {
-            --bg-color: #121212;
-            --text-color: #ffffff;
-            --card-bg: #2a2a2a;
-            --border-color: #555555;
-            --focus-outline: #ffeb3b; 
+            --primary: #3b82f6;
+            --primary-glow: rgba(59, 130, 246, 0.5);
+            --accent: #10b981;
+            --bg: #030712;
+            --card-bg: rgba(17, 24, 39, 0.7);
+            --text: #f8fafc;
+            --text-muted: #94a3b8;
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
+
+        * {
+            box-sizing: border-box;
+            outline-color: var(--primary);
         }
 
         body {
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            font-family: system-ui, -apple-system, sans-serif;
+            background: radial-gradient(circle at top right, #1e1b4b, #030712);
+            color: var(--text);
+            font-family: 'Outfit', sans-serif;
             margin: 0;
-            padding: 1.5rem;
-            line-height: 1.6;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        header {
+            width: 100%;
+            padding: 2rem 1rem;
+            text-align: center;
+            background: linear-gradient(to bottom, rgba(3, 7, 18, 0.8), transparent);
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 2.5rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            background: linear-gradient(to right, #60a5fa, #a855f7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        header p {
+            margin: 0.5rem 0 0;
+            color: var(--text-muted);
+            font-weight: 300;
         }
 
         main {
-            max-width: 600px;
-            margin: 0 auto;
-        }
-
-        /* Essential focus rings for pure keyboard navigation */
-        *:focus {
-            outline: 3px solid var(--focus-outline);
-            outline-offset: 2px;
-        }
-
-        .controls-panel {
-            background: var(--card-bg);
+            width: 100%;
+            max-width: 500px;
             padding: 1.5rem;
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .glass-panel {
+            background: var(--card-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 2rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        h2 {
+            margin-top: 0;
+            font-size: 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+
+        select {
+            width: 100%;
+            padding: 1rem;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            color: white;
+            font-family: inherit;
+            font-size: 1rem;
+            appearance: none;
+            cursor: pointer;
+            margin-bottom: 1.5rem;
+        }
+
+        .checkbox-group {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
             margin-bottom: 2rem;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 8px;
+            transition: background 0.2s;
+        }
+
+        .checkbox-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .checkbox-item input {
+            width: 1.25rem;
+            height: 1.25rem;
+            accent-color: var(--primary);
+        }
+
+        button {
+            width: 100%;
+            padding: 1.25rem;
+            background: linear-gradient(135deg, var(--primary), #8b5cf6);
+            border: none;
+            border-radius: 16px;
+            color: white;
+            font-family: inherit;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 10px 15px -3px var(--primary-glow);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 20px 25px -5px var(--primary-glow);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        #results-area {
             display: flex;
             flex-direction: column;
             gap: 1rem;
         }
 
-        label {
-            font-weight: 600;
+        .rec-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 1.5rem;
+            transition: transform 0.3s;
+            animation: slideUp 0.5s ease-out forwards;
         }
 
-        select, button, input[type="checkbox"] {
-            font-size: 1rem;
-            padding: 0.75rem;
-            background-color: #ffffff;
-            color: #000000;
-            border: 2px solid var(--border-color);
-            border-radius: 4px;
-            cursor: pointer;
+        .rec-card:hover {
+            transform: scale(1.02);
+            background: rgba(255, 255, 255, 0.05);
         }
 
-        button {
-            font-weight: bold;
-            margin-top: 1rem;
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
-        button:hover, button:focus {
-            background-color: #e0e0e0;
+        .rec-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 0.75rem;
         }
 
-        .recommendation-card {
-            background: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-left: 6px solid #4caf50;
-            padding: 1rem;
-            margin-bottom: 1rem;
-            border-radius: 4px;
-        }
-
-        /* Explicit text labels enforcing "No color-only indicators" rule */
-        .text-badge {
-            display: inline-block;
-            border: 1px solid var(--text-color);
-            padding: 0.2rem 0.6rem;
-            border-radius: 4px;
-            font-weight: bold;
-            font-size: 0.85rem;
-            margin-bottom: 0.5rem;
+        .poi-id {
+            font-weight: 700;
+            font-size: 1.125rem;
+            color: var(--primary);
         }
 
         .badge-warning {
-            border-color: #ff9800;
-            /* Explicit word "Caution" is written in the DOM so color blindness doesn't inhibit understanding */
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 0.25rem 0.75rem;
+            background: rgba(245, 158, 11, 0.1);
+            color: #f59e0b;
+            border: 1px solid rgba(245, 158, 11, 0.3);
+            border-radius: 100px;
+            text-transform: uppercase;
         }
 
-        .error-box {
-            border: 2px solid #ff5252;
+        .rec-text {
+            line-height: 1.6;
+            color: var(--text);
+            margin: 0;
+        }
+
+        .loading-spinner {
+            width: 24px;
+            height: 24px;
+            border: 3px solid rgba(255, 255, 255, 0.1);
+            border-top: 3px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .error-message {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            border-radius: 12px;
             padding: 1rem;
-            background-color: #3b0000;
-            font-weight: bold;
+            color: #ef4444;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        footer {
+            margin-top: auto;
+            padding: 2rem;
+            color: var(--text-muted);
+            font-size: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
         }
     </style>
 </head>
 <body>
 
-    <main>
-        <header>
-            <h1>StadiumFlow</h1>
-            <p>Smart Event Assistant</p>
-        </header>
+    <header>
+        <h1>StadiumFlow</h1>
+        <p>Your AI-Powered Event Navigator</p>
+    </header>
 
-        <section class="controls-panel" aria-labelledby="context-heading">
-            <h2 id="context-heading">Your Location Context</h2>
+    <main>
+        <section class="glass-panel" aria-labelledby="context-heading">
+            <h2 id="context-heading">
+                <i data-lucide="map-pin" style="color: var(--primary)"></i>
+                Your Location
+            </h2>
             
-            <label for="zone-select">Current Zone:</label>
-            <select id="zone-select" aria-required="true">
+            <label for="zone-select">Select your current zone</label>
+            <select id="zone-select">
                 <option value="North Entrance">North Entrance</option>
                 <option value="South Concourse">South Concourse</option>
                 <option value="Section 105">Section 105</option>
+                <option value="Main Stage">Main Stage</option>
             </select>
 
-            <fieldset style="border: 1px solid var(--border-color); padding: 1rem; border-radius: 4px;">
-                <legend style="font-weight: 600;">Accessibility Needs (Optional)</legend>
-                <label style="display: block; margin-bottom: 0.5rem;">
+            <h2>
+                <i data-lucide="accessibility" style="color: var(--accent)"></i>
+                Preferences
+            </h2>
+            <div class="checkbox-group">
+                <label class="checkbox-item">
                     <input type="checkbox" id="pref-wheelchair" value="wheelchair_accessible">
-                    Wheelchair Accessible
+                    <span>Wheelchair Accessible</span>
                 </label>
-                <label style="display: block;">
+                <label class="checkbox-item">
                     <input type="checkbox" id="pref-family" value="family_restroom">
-                    Family Restroom
+                    <span>Family Restroom</span>
                 </label>
-            </fieldset>
+            </div>
 
-            <button id="fetch-btn" aria-live="polite">Find Best Routes</button>
+            <button id="fetch-btn">
+                <span id="btn-text">Optimize My Route</span>
+                <i data-lucide="sparkles" id="btn-icon"></i>
+            </button>
         </section>
 
-        <!-- Dynamic Live Region for screen readers -->
-        <section id="results-area" aria-live="polite"></section>
+        <section id="results-area" aria-live="polite">
+            <!-- Results will appear here -->
+        </section>
     </main>
 
+    <footer>
+        <div style="display: flex; flex-direction: column; align-items: center; gap: 1.5rem; width: 100%; max-width: 500px;">
+            <!-- Prominent Staff Portal Button -->
+            <a href="/ops" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 0.75rem; background: rgba(255, 255, 255, 0.05); color: white; text-decoration: none; padding: 1rem; border-radius: 16px; font-weight: 700; font-size: 0.95rem; border: 1px solid var(--glass-border); backdrop-filter: blur(10px); transition: all 0.3s; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
+                <i data-lucide="shield-alert" style="width:18px;height:18px;color: #fbbf24;"></i>
+                Enter Ops Command Center
+                <i data-lucide="arrow-right" style="width:16px;height:16px;opacity: 0.5;"></i>
+            </a>
+
+            <div style="display: flex; align-items: center; gap: 0.5rem; opacity: 0.6;">
+                <i data-lucide="shield-check" style="width:14px;height:14px"></i>
+                <span>Private & Secure AI Reasoning</span>
+            </div>
+        </div>
+    </footer>
+
     <script>
-        document.getElementById('fetch-btn').addEventListener('click', handleFetch);
+        // Initialize Lucide Icons
+        lucide.createIcons();
+
+        const btn = document.getElementById('fetch-btn');
+        const resultsArea = document.getElementById('results-area');
+
+        btn.addEventListener('click', handleFetch);
 
         async function handleFetch() {
-            const btn = document.getElementById('fetch-btn');
-            const resultsArea = document.getElementById('results-area');
             const zone = document.getElementById('zone-select').value;
-            
-            // Collect selected filters
             const prefs = [];
             if(document.getElementById('pref-wheelchair').checked) prefs.push("wheelchair_accessible");
             if(document.getElementById('pref-family').checked) prefs.push("family_restroom");
 
             // UI Loading State
-            btn.textContent = "Analyzing crowd data...";
-            btn.setAttribute('aria-busy', 'true');
-            resultsArea.innerHTML = '<p>Evaluating real-time wait times...</p>';
+            setLoading(true);
+            resultsArea.innerHTML = '';
 
-            // Stubbing live POI data for minimal prototype frontend execution
+            // Stub nearby logic per backend requirement
             const stubNearbyPOIs = [
                 { id: "R-101", type: "restroom", currentWaitMinutes: 14, confidenceScore: 0.9 },
-                { id: "C-205", type: "concession", currentWaitMinutes: 4, confidenceScore: 0.3 }
+                { id: "C-205", type: "concession", currentWaitMinutes: 4, confidenceScore: 0.3 },
+                { id: "E-50", type: "exit", currentWaitMinutes: 2, confidenceScore: 0.95 }
             ];
 
             try {
-                // Call minimal python Cloud Run backend
-                const response = await fetch('/api/recommendations', {
+                // Determine the correct base URL
+                const baseUrl = window.location.origin;
+
+                const response = await fetch(`${baseUrl}/api/recommendations`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -180,60 +375,73 @@
                 if (!response.ok) throw new Error(`HTTP ${response.status}`);
 
                 const data = await response.json();
-                
-                // Unpack Gemini's encapsulated JSON as defined by our AI_CONTRACT.md
                 const aiResponse = JSON.parse(data.recommendation);
                 renderUI(aiResponse.recommendations);
                 
             } catch (err) {
                 console.error("API Error", err);
                 resultsArea.innerHTML = `
-                    <div class="error-box" role="alert">
-                        <p>Status: Connection Error</p>
-                        <p>We couldn't reach the routing assistant. Please try again.</p>
+                    <div class="error-message" role="alert">
+                        <i data-lucide="alert-circle"></i>
+                        <span>AI Assistant unavailable (Error: ${err.message}). Check your connection.</span>
                     </div>
                 `;
+                lucide.createIcons();
             } finally {
-                btn.textContent = "Find Best Routes";
-                btn.removeAttribute('aria-busy');
+                setLoading(false);
+            }
+        }
+
+        function setLoading(isLoading) {
+            const text = document.getElementById('btn-text');
+            const icon = document.getElementById('btn-icon');
+            
+            if (isLoading) {
+                btn.disabled = true;
+                text.textContent = "Calculating...";
+                icon.outerHTML = '<div class="loading-spinner" id="btn-icon"></div>';
+            } else {
+                btn.disabled = false;
+                text.textContent = "Optimize My Route";
+                document.getElementById('btn-icon').outerHTML = '<i data-lucide="sparkles" id="btn-icon"></i>';
+                lucide.createIcons();
             }
         }
 
         function renderUI(recommendations) {
-            const container = document.getElementById('results-area');
-            container.innerHTML = '<h2>Recommended Options</h2>';
+            resultsArea.innerHTML = '<h2 style="padding: 0 0.5rem">Top Recommendations</h2>';
 
             if (!recommendations || recommendations.length === 0) {
-                container.innerHTML += '<p>No clear recommendations for this zone right now.</p>';
+                resultsArea.innerHTML += '<p style="text-align:center;color:var(--text-muted)">No active recommendations found for this area.</p>';
                 return;
             }
 
-            // Iterate and create accessible cards per requirement (defensively slicing to max 3)
-            recommendations.slice(0, 3).forEach((rec, idx) => {
-                const article = document.createElement('article');
-                article.className = 'recommendation-card';
-                article.tabIndex = 0; // Focusable element
+            recommendations.forEach((rec, idx) => {
+                const card = document.createElement('div');
+                card.className = 'rec-card';
+                card.style.animationDelay = `${idx * 150}ms`;
                 
-                let warningHTML = '';
-                // Satisfies "If confidence is low, assistant must state uncertainty" + "No color-only indicators"
+                let warning = '';
                 if (rec.uncertaintyWarning) {
-                    warningHTML = `
-                        <div class="text-badge badge-warning" aria-label="Caution on accuracy">
-                            Status: Unverified Wait Time - ${rec.uncertaintyWarning}
+                    warning = `
+                        <div class="badge-warning">
+                            <i data-lucide="help-circle" style="width:12px;height:12px"></i>
+                            Unverified
                         </div>
                     `;
                 }
 
-                article.innerHTML = `
-                    <h3 style="margin-top:0;">Destination: ${rec.poiId}</h3>
-                    ${warningHTML}
-                    <p style="font-size: 1.1rem; line-height: 1.5;">
-                        <strong>Recommendation:</strong> ${rec.recommendationText}
-                    </p>
+                card.innerHTML = `
+                    <div class="rec-header">
+                        <span class="poi-id">${rec.poiId}</span>
+                        ${warning}
+                    </div>
+                    <p class="rec-text">${rec.recommendationText}</p>
                 `;
                 
-                container.appendChild(article);
+                resultsArea.appendChild(card);
             });
+            lucide.createIcons();
         }
     </script>
 </body>

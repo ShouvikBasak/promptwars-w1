@@ -749,6 +749,27 @@ Constraints:
 Cloud Run URL: 
 https://promptwars-api-1075266329174.us-central1.run.app
 
+Attendee Hub (Main): https://promptwars-api-1075266329174.us-central1.run.app
+Ops Command Center: https://promptwars-api-1075266329174.us-central1.run.app/ops.html
+
+#### GUI Issues:
+
+Attendee Hub (Main): https://promptwars-api-1075266329174.us-central1.run.app
+returns: {"status": "ok", "message": "StadiumFlow API is running"}
+Ops Command Center: https://promptwars-api-1075266329174.us-central1.run.app/ops.html
+returns: {"detail":"Not Found"}
+
+There is No GUI. Also the GUI should be such that from the homescreen landing page for Attendee Hub, an user can find a link to the Ops command center
+
+#### Model Access issues:
+In Attendee Hub on clicking "Optimize My Route" getting the error "AI Assistant unavailable. Check your connection."
+In Ops Command Center on clicking "Update System" is giving "Submission failed".
+
+Also in GUI "Staff Portal Access" should be very prominently visible at the top.
+
+This is to ensure judges for teh Hackathon understands easliy there are two features "Attendee Hub" and "Ops Command Center"
+
+
 
 
 

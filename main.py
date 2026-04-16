@@ -3,6 +3,8 @@ import json
 from datetime import datetime, timezone, timedelta
 from typing import List, Optional
 from fastapi import FastAPI, HTTPException, Header, Depends
+from fastapi.responses import FileResponse
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 import google.generativeai as genai
 
@@ -27,6 +29,15 @@ genai.configure(api_key=_gemini_api_key)
 model = genai.GenerativeModel('gemini-pro-latest')
 
 app = FastAPI(title="StadiumFlow Full Backend")
+
+# Enable CORS for cross-origin frontend requests
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # --- Pydantic Models for Input Validation (API_CONTRACT.md) ---
 class PoiData(BaseModel):
@@ -68,6 +79,15 @@ class BroadcastResponse(BaseModel):
 from auth import verify_auth_token, verify_staff_token
 
 # --- Endpoints ---
+@app.get("/")
+async def root():
+    return FileResponse("index.html")
+
+@app.get("/ops")
+@app.get("/ops.html")
+async def ops_console():
+    return FileResponse("ops.html")
+
 @app.post("/api/recommendations", response_model=RecommendResponse)
 async def get_recommendation(
     request: RecommendRequest, 
@@ -138,9 +158,12 @@ async def get_recommendation(
         
         return RecommendResponse(success=True, recommendation=json.dumps(result_json))
         
-    except (json.JSONDecodeError, ValueError):
+    except (json.JSONDecodeError, ValueError) as e:
+        print(f"AI Schema Error: {str(e)}")
+        print(f"Raw AI Output: {response.text if 'response' in locals() else 'No response'}")
         raise HTTPException(status_code=503, detail="AI response failed structural validation constraints.")
     except Exception as e:
+        print(f"AI Critical Error: {str(e)}")
         raise HTTPException(status_code=500, detail="Internal Server Error: AI invocation failed")
 
 @app.post("/api/signals", response_model=SignalResponse)
