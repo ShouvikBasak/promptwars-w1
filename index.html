@@ -272,6 +272,16 @@
         <p>Your AI-Powered Event Navigator</p>
     </header>
 
+    <div id="broadcast-ticker-container" style="width: 100%; max-width: 500px; margin-bottom: 1rem; display: none;">
+        <div id="broadcast-ticker" class="glass-panel" style="padding: 1rem; border-radius: 12px; border-left: 4px solid #fbbf24; font-size: 0.9rem;">
+            <div style="display: flex; align-items: center; gap: 0.5rem; color: #fbbf24; font-weight: 700; margin-bottom: 0.25rem;">
+                <i data-lucide="bell-ring" style="width: 16px; height: 16px;"></i>
+                <span id="ticker-title">BROADCAST</span>
+            </div>
+            <p id="ticker-msg" style="margin: 0; line-height: 1.4;"></p>
+        </div>
+    </div>
+
     <main>
         <section class="glass-panel" aria-labelledby="context-heading">
             <h2 id="context-heading">
@@ -279,12 +289,14 @@
                 Your Location
             </h2>
             
-            <label for="zone-select">Select your current zone</label>
-            <select id="zone-select">
-                <option value="North Entrance">North Entrance</option>
-                <option value="South Concourse">South Concourse</option>
-                <option value="Section 105">Section 105</option>
-                <option value="Main Stage">Main Stage</option>
+            <label for="stadium-select">Select Stadium</label>
+            <select id="stadium-select">
+                <option value="">Loading stadiums...</option>
+            </select>
+
+            <label for="zone-select">Select Zone</label>
+            <select id="zone-select" disabled>
+                <option value="">Select a stadium first</option>
             </select>
 
             <h2>
@@ -335,11 +347,89 @@
 
         const btn = document.getElementById('fetch-btn');
         const resultsArea = document.getElementById('results-area');
+        const stadiumSelect = document.getElementById('stadium-select');
+        const zoneSelect = document.getElementById('zone-select');
+
+        // Load Stadiums on Page Load
+        window.addEventListener('DOMContentLoaded', async () => {
+            try {
+                const res = await fetch(`${window.location.origin}/api/stadiums`);
+                const data = await res.json();
+                if (data.success && data.stadiums) {
+                    stadiumSelect.innerHTML = data.stadiums.map(s => `<option value="${s}">${s}</option>`).join('');
+                    // Trigger zone load for the first stadium
+                    loadZones();
+                }
+            } catch (err) {
+                console.error("Failed to load stadiums", err);
+                stadiumSelect.innerHTML = '<option value="">Error loading stadiums</option>';
+            }
+        });
+
+        stadiumSelect.addEventListener('change', loadZones);
+
+        async function loadZones() {
+            const stadium = stadiumSelect.value;
+            if (!stadium) return;
+            
+            zoneSelect.disabled = true;
+            zoneSelect.innerHTML = '<option value="">Loading zones...</option>';
+            
+            try {
+                const res = await fetch(`${window.location.origin}/api/venues?stadium=${encodeURIComponent(stadium)}`);
+                const data = await res.json();
+                if (data.success && data.zones) {
+                    zoneSelect.innerHTML = data.zones.map(z => `<option value="${z}">${z}</option>`).join('');
+                    zoneSelect.disabled = false;
+                    checkBroadcasts();
+                }
+            } catch (err) {
+                console.error("Failed to load zones", err);
+                zoneSelect.innerHTML = '<option value="">Error loading zones</option>';
+            }
+        }
+
+        // Ticker Logic
+        zoneSelect.addEventListener('change', checkBroadcasts);
+
+        async function checkBroadcasts() {
+            const stadium = stadiumSelect.value;
+            const zone = zoneSelect.value;
+            if (!stadium || !zone) return;
+
+            try {
+                const res = await fetch(`${window.location.origin}/api/active_broadcasts?stadium=${encodeURIComponent(stadium)}&zone=${encodeURIComponent(zone)}`);
+                const data = await res.json();
+                const tickerContainer = document.getElementById('broadcast-ticker-container');
+                const tickerTitle = document.getElementById('ticker-title');
+                const tickerMsg = document.getElementById('ticker-msg');
+
+                if (data.success && data.broadcasts && data.broadcasts.length > 0) {
+                    const latest = data.broadcasts[0];
+                    tickerTitle.textContent = latest.name.toUpperCase();
+                    tickerMsg.textContent = latest.message;
+                    tickerContainer.style.display = 'block';
+                    
+                    // Set color based on type
+                    const tickerDiv = document.getElementById('broadcast-ticker');
+                    if (latest.type === 'emergency') tickerDiv.style.borderLeftColor = '#ef4444';
+                    else if (latest.type === 'alert') tickerDiv.style.borderLeftColor = '#f59e0b';
+                    else tickerDiv.style.borderLeftColor = '#3b82f6';
+                } else {
+                    tickerContainer.style.display = 'none';
+                }
+            } catch (err) {
+                console.error("Ticker Error", err);
+            }
+        }
 
         btn.addEventListener('click', handleFetch);
 
         async function handleFetch() {
-            const zone = document.getElementById('zone-select').value;
+            const stadium = stadiumSelect.value;
+            const zone = zoneSelect.value;
+            if (!stadium || !zone) return alert("Please select a stadium and zone first.");
+
             const prefs = [];
             if(document.getElementById('pref-wheelchair').checked) prefs.push("wheelchair_accessible");
             if(document.getElementById('pref-family').checked) prefs.push("family_restroom");
@@ -350,9 +440,9 @@
 
             // Stub nearby logic per backend requirement
             const stubNearbyPOIs = [
-                { id: "R-101", type: "restroom", currentWaitMinutes: 14, confidenceScore: 0.9 },
-                { id: "C-205", type: "concession", currentWaitMinutes: 4, confidenceScore: 0.3 },
-                { id: "E-50", type: "exit", currentWaitMinutes: 2, confidenceScore: 0.95 }
+                { id: "R-101", type: "restroom", currentWaitMinutes: 5, confidenceScore: 0.95 },
+                { id: "C-201", type: "concession", currentWaitMinutes: 14, confidenceScore: 0.9 },
+                { id: "E-105", type: "exit", currentWaitMinutes: 2, confidenceScore: 0.95 }
             ];
 
             try {
@@ -363,9 +453,10 @@
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': 'Bearer STUB_AUTH_TOKEN'
+                        'Authorization': 'Bearer STUB_TOKEN'
                     },
                     body: JSON.stringify({
+                        stadium: stadium,
                         zone: zone,
                         accessibilityPreferences: prefs,
                         nearbyPOIs: stubNearbyPOIs

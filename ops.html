@@ -242,11 +242,14 @@
         <div class="panel">
             <h2><i data-lucide="megaphone"></i> Broadcast Center</h2>
             
+            <label>Target Stadium</label>
+            <select id="stadium-select">
+                <option value="">Loading stadiums...</option>
+            </select>
+
             <label>Target Zone</label>
-            <select id="zone-select">
-                <option value="North Entrance">North Entrance</option>
-                <option value="South Concourse">South Concourse</option>
-                <option value="Section 105">Section 105</option>
+            <select id="zone-select" disabled>
+                <option value="">Select stadium first</option>
             </select>
 
             <label>Classification</label>
@@ -275,8 +278,46 @@
             el.textContent = msg;
             el.className = type;
             el.style.display = 'block';
-            setTimeout(() => el.style.display = 'none', 4000);
+            setTimeout(() => el.style.display = 'none', 6000);
         };
+
+        const stadiumSelector = document.getElementById('stadium-select');
+        const zoneSelector = document.getElementById('zone-select');
+
+        // Dynamic Loading on Page Load
+        window.addEventListener('DOMContentLoaded', async () => {
+            try {
+                const res = await fetch(`${window.location.origin}/api/stadiums`);
+                const data = await res.json();
+                if (data.success && data.stadiums) {
+                    stadiumSelector.innerHTML = data.stadiums.map(s => `<option value="${s}">${s}</option>`).join('');
+                    loadZones();
+                }
+            } catch (err) {
+                console.error("Failed to load stadiums", err);
+            }
+        });
+
+        stadiumSelector.addEventListener('change', loadZones);
+
+        async function loadZones() {
+            const stadium = stadiumSelector.value;
+            if (!stadium) return;
+
+            zoneSelector.disabled = true;
+            zoneSelector.innerHTML = '<option value="">Loading zones...</option>';
+            
+            try {
+                const res = await fetch(`${window.location.origin}/api/venues?stadium=${encodeURIComponent(stadium)}`);
+                const data = await res.json();
+                if (data.success && data.zones) {
+                    zoneSelector.innerHTML = data.zones.map(z => `<option value="${z}">${z}</option>`).join('');
+                    zoneSelector.disabled = false;
+                }
+            } catch (err) {
+                console.error("Failed to load zones", err);
+            }
+        }
 
         document.getElementById('update-wait-btn').addEventListener('click', async () => {
             const btn = document.getElementById('update-wait-btn');
@@ -294,13 +335,16 @@
                     headers: { 'Content-Type': 'application/json', 'Authorization': AUTH_HEADER },
                     body: JSON.stringify({ poiId, waitMinutes: waitTime, submitterRole: 'staff' })
                 });
-                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                if (!res.ok) {
+                    const errorData = await res.json();
+                    throw new Error(errorData.detail || `HTTP ${res.status}`);
+                }
                 const data = await res.json();
                 document.getElementById(`status-${poiId}`).innerText = `${data.newAggregatedWaitMinutes}m (Override)`;
                 document.getElementById(`status-${poiId}`).className = "status-badge override";
                 showStatus(statusDiv, "Override applied successfully", "success");
             } catch (err) {
-                showStatus(statusDiv, "Submission failed", "error");
+                showStatus(statusDiv, `Submission failed: ${err.message}`, "error");
             } finally { btn.disabled = false; }
         });
 
@@ -308,7 +352,8 @@
             const btn = document.getElementById('send-broadcast-btn');
             const statusDiv = document.getElementById('broadcast-status');
             const payload = {
-                zone: document.getElementById('zone-select').value,
+                stadium: stadiumSelector.value,
+                zone: zoneSelector.value,
                 type: document.getElementById('broadcast-type').value,
                 name: document.getElementById('broadcast-name').value.trim(),
                 message: document.getElementById('broadcast-msg').value.trim()

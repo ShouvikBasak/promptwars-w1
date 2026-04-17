@@ -160,6 +160,8 @@ This prototype reflects **AI‑native development**, not traditional coding with
 3. Deploy the backend to Cloud Run
 4. Open the attendee UI or `/ops` for the staff view
 
+All architectural artifacts are located under `/artifacts`. Agents MUST treat these files as authoritative inputs.
+
 ## Future Enhancements (Out of Scope)
 
 - Sensor or camera‑based crowd detection

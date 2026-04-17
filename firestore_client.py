@@ -58,9 +58,10 @@ def create_wait_signal(poi_id: str, waitMinutes: int, submitterRole: str, uid: s
         "name": "POI"
     })
 
-def create_broadcast(zone: str, b_type: str, name: str, message: str, uid: str, createdAt, expiresAt) -> str:
+def create_broadcast(stadium: str, zone: str, b_type: str, name: str, message: str, uid: str, createdAt, expiresAt) -> str:
     """Write a broadcast document and return its auto-generated ID."""
     _, doc_ref = db.collection('broadcasts').add({
+        "stadium": stadium,
         "zone": zone,
         "type": b_type,
         "name": name,
@@ -71,7 +72,10 @@ def create_broadcast(zone: str, b_type: str, name: str, message: str, uid: str, 
     })
     return doc_ref.id
 
-def query_pois_by_zone(zone: str) -> list:
-    """Return all POI documents matching a specific zone, each including its document ID."""
-    docs = db.collection('pois').where("zone", "==", zone).stream()
+def query_pois_by_zone(zone: str, stadium: str = None) -> list:
+    """Return all POI documents matching a specific zone and stadium."""
+    query = db.collection('pois').where("zone", "==", zone)
+    if stadium:
+        query = query.where("stadium", "==", stadium)
+    docs = query.stream()
     return [{"id": d.id, **d.to_dict()} for d in docs]

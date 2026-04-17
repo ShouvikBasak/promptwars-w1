@@ -6,27 +6,30 @@ from fastapi import FastAPI, HTTPException, Header, Depends
 from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
-import google.generativeai as genai
+import vertexai
+from vertexai.generative_models import GenerativeModel, GenerationConfig
 
 from firestore_client import db, update_poi_aggregate, create_wait_signal, create_broadcast
 from aggregation import WaitSignal, aggregate_poi_wait_time
 
-# --- Configuration & Initialization ---
-# Gemini API called server-side only per SECURITY.md
+# Vertex AI Configuration per implementation_plan_vertex.md
+PROJECT_ID = os.environ.get("GCP_PROJECT_ID")
+LOCATION = os.environ.get("GCP_LOCATION", "us-central1")
 DEV_MODE = os.environ.get("DEV_MODE", "").lower() == "true"
-_gemini_api_key = os.environ.get("GEMINI_API_KEY", "")
 
-if not _gemini_api_key:
-    if DEV_MODE:
-        _gemini_api_key = "DEV_STUB_KEY__NOT_FOR_PRODUCTION"
-    else:
-        raise RuntimeError(
-            "GEMINI_API_KEY environment variable is required. "
-            "Set it before starting the server, or enable DEV_MODE=true for local development."
-        )
-
-genai.configure(api_key=_gemini_api_key)
-model = genai.GenerativeModel('gemini-pro-latest')
+if not DEV_MODE:
+    # Initialize Vertex AI for production (uses ADC)
+    vertexai.init(project=PROJECT_ID, location=LOCATION)
+    model = GenerativeModel("gemini-1.5-flash")
+else:
+    # Minimal stub logic for local development if Vertex is unavailable
+    # We still use a GenerativeModel but it might fail without local ADC
+    try:
+        vertexai.init(project=PROJECT_ID, location=LOCATION)
+        model = GenerativeModel("gemini-1.5-flash")
+    except Exception:
+        model = None
+        print("Warning: Vertex AI initialization failed. AI features will be disabled in DEV_MODE.")
 
 app = FastAPI(title="StadiumFlow Full Backend")
 
@@ -47,6 +50,7 @@ class PoiData(BaseModel):
     confidenceScore: float
 
 class RecommendRequest(BaseModel):
+    stadium: str
     zone: str
     accessibilityPreferences: Optional[List[str]] = []
     nearbyPOIs: List[PoiData] = Field(..., min_length=1, max_length=20)
@@ -66,6 +70,7 @@ class SignalResponse(BaseModel):
     confidenceScore: float
 
 class BroadcastRequest(BaseModel):
+    stadium: str
     zone: str
     type: str = Field(..., pattern="^(info|alert|emergency)$")
     name: str = Field(..., max_length=50)
@@ -88,6 +93,60 @@ async def root():
 async def ops_console():
     return FileResponse("ops.html")
 
+@app.get("/api/stadiums")
+async def get_stadiums():
+    """Returns a unique list of stadium names from the POIs collection."""
+    try:
+        docs = db.collection('pois').stream()
+        stadiums = set()
+        for d in docs:
+            data = d.to_dict()
+            if data.get("stadium"):
+                stadiums.add(data.get("stadium"))
+        return {"success": True, "stadiums": sorted(list(stadiums))}
+    except Exception as e:
+        print(f"Error fetching stadiums: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to fetch stadiums")
+
+@app.get("/api/venues")
+async def get_venues(stadium: str):
+    """Returns a list of unique zones for a specific stadium."""
+    try:
+        docs = db.collection('pois').where("stadium", "==", stadium).stream()
+        zones = set()
+        for d in docs:
+            zones.add(d.to_dict().get("zone"))
+        return {"success": True, "zones": sorted(list(filter(None, zones)))}
+    except Exception as e:
+        print(f"Error fetching zones: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to fetch zones")
+
+@app.get("/api/active_broadcasts")
+async def get_active_broadcasts(stadium: str, zone: str):
+    """Returns active broadcasts for a specific stadium and zone."""
+    try:
+        now = datetime.now(timezone.utc)
+        docs = db.collection('broadcasts')\
+            .where('stadium', '==', stadium)\
+            .where('zone', '==', zone)\
+            .where('expiresAt', '>', now)\
+            .stream()
+        
+        broadcasts = []
+        for d in docs:
+            data = d.to_dict()
+            broadcasts.append({
+                "id": d.id,
+                "type": data.get("type"),
+                "name": data.get("name"),
+                "message": data.get("message"),
+                "createdAt": data.get("createdAt")
+            })
+        return {"success": True, "broadcasts": broadcasts}
+    except Exception as e:
+        print(f"Error fetching broadcasts: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to fetch broadcasts")
+
 @app.post("/api/recommendations", response_model=RecommendResponse)
 async def get_recommendation(
     request: RecommendRequest, 
@@ -98,8 +157,8 @@ async def get_recommendation(
     Validates input natives, bounds context, and restricts output per AI_CONTRACT.md.
     Fetches real-time TTL-filtered signals from Firestore to guarantee Gemini is never called with stale data.
     """
-    # Fetch POIs securely bypassing client state per Prompt 3.13 constraints
-    docs = db.collection('pois').where("zone", "==", request.zone).stream()
+    # Fetch POIs securely within stadium/zone scope
+    docs = db.collection('pois').where("stadium", "==", request.stadium).where("zone", "==", request.zone).stream()
     
     bounded_pois = []
     for d in docs:
@@ -138,10 +197,13 @@ async def get_recommendation(
     """
     
     try:
-        # Call Gemini server-side enforcing token length limit
+        if model is None:
+            raise HTTPException(status_code=503, detail="AI Assistant uninitialized.")
+
+        # Call Gemini server-side enforcing token length limit via Vertex SDK
         response = model.generate_content(
             prompt,
-            generation_config=genai.GenerationConfig(
+            generation_config=GenerationConfig(
                 max_output_tokens=120,
                 response_mime_type="application/json",
             )
@@ -161,10 +223,12 @@ async def get_recommendation(
     except (json.JSONDecodeError, ValueError) as e:
         print(f"AI Schema Error: {str(e)}")
         print(f"Raw AI Output: {response.text if 'response' in locals() else 'No response'}")
-        raise HTTPException(status_code=503, detail="AI response failed structural validation constraints.")
+        raise HTTPException(status_code=503, detail=f"AI response failed structural validation: {str(e)}")
     except Exception as e:
+        import traceback
         print(f"AI Critical Error: {str(e)}")
-        raise HTTPException(status_code=500, detail="Internal Server Error: AI invocation failed")
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=f"Internal Server Error: AI invocation failed - {str(e)}")
 
 @app.post("/api/signals", response_model=SignalResponse)
 async def submit_signal(
@@ -239,6 +303,7 @@ async def create_broadcast_endpoint(
     expiresAt = now + timedelta(hours=2)
     
     b_id = create_broadcast(
+        stadium=request.stadium,
         zone=request.zone,
         b_type=request.type,
         name=request.name,
