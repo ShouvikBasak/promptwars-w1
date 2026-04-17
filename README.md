@@ -4,8 +4,6 @@
 
 Rather than relying on heavy infrastructure or complex integrations, StadiumFlow demonstrates how **lightweight signals, real‑time data, and AI‑assisted reasoning** can meaningfully improve crowd movement and decision‑making during live events.
 
----
-
 ## Chosen Challenge Vertical
 
 **Vertical:** Physical Event Experience (Large Sporting Venues)
@@ -16,8 +14,6 @@ Rather than relying on heavy infrastructure or complex integrations, StadiumFlow
 - **Secondary Persona:** Venue Operations Staff (lightweight coordination role)
 
 The solution is intentionally designed as a **smart assistant**, not just a UI, by reasoning over live context and adapting recommendations in real time.
-
----
 
 ## Problem Statement
 
@@ -33,7 +29,17 @@ Many existing solutions depend on expensive hardware (cameras, sensors) or deep 
 **Goal:**  
 Design a **practical, low‑friction, real‑time assistant** that improves attendee experience and crowd flow using minimal infrastructure and responsible AI.
 
----
+## Approach and Core Design Logic
+
+The solution is intentionally designed as an **agent‑driven assistant**, not a static dashboard.
+
+Key design choices:
+- Prefer **lightweight signals** over heavy infrastructure
+- Treat AI as a **reasoning layer**, not a decision authority
+- Keep humans **in the loop** at key trust and validation points
+- Optimize for **clarity, safety, and adaptability**, not automation for its own sake
+
+This ensures the system remains explainable, reviewable, and suitable for real‑world environments.
 
 ## Solution Overview
 
@@ -56,8 +62,6 @@ StadiumFlow acts as a **real‑time decision assistant** for people inside a liv
 
 The staff console is intentionally minimal and exists to support **human‑in‑the‑loop coordination**, not heavy operational workflows.
 
----
-
 ## How StadiumFlow Assistant Works
 
 1. Attendees and staff submit lightweight, real‑time inputs (e.g., wait estimates).
@@ -69,9 +73,9 @@ The staff console is intentionally minimal and exists to support **human‑in‑
 4. StadiumFlow returns a **short, explainable recommendation**.
 5. Staff confirmations improve reliability and prevent misinformation.
 
-This design balances automation with human oversight, making the system realistic and safe for real‑world use.
+Core architectural logic and constraints are externalized into structured artifacts (e.g., architecture definitions and AI contracts), ensuring predictable behavior across sessions and iterations.
 
----
+This design balances automation with human oversight, making the system realistic and safe for real‑world use.
 
 ## Why This Is a Smart, Dynamic Assistant
 
@@ -84,14 +88,12 @@ StadiumFlow goes beyond static dashboards by:
 
 The assistant continuously reacts to the environment instead of relying on predefined rules or static data.
 
----
-
 ## Architecture and Google Services Used
 
 ### Frontend
 
 - Lightweight web UI for attendees
-- Minimal staff operations view (`/ops`)
+- Minimal staff operations view
 
 ### Backend
 
@@ -110,8 +112,6 @@ The assistant continuously reacts to the environment instead of relying on prede
 
 - Built end‑to‑end using **Google Antigravity**, following an agent‑first workflow for planning, coding, and iteration
 
----
-
 ## Security and Responsible Design
 
 - No camera feeds or biometric data
@@ -121,8 +121,6 @@ The assistant continuously reacts to the environment instead of relying on prede
 - AI calls executed server‑side only (keys never exposed)
 
 The system is designed to be **privacy‑first**, safe, and suitable for real‑world environments.
-
----
 
 ## Accessibility Considerations
 
@@ -135,8 +133,6 @@ Accessibility is treated as a core requirement:
 
 The assistant aims to remain usable for a wide range of users in a crowded, high‑stress environment.
 
----
-
 ## Assumptions and Constraints
 
 - Crowd data is approximate and confidence‑scored
@@ -145,8 +141,6 @@ The assistant aims to remain usable for a wide range of users in a crowded, high
 - Designed as a **demo‑ready MVP**, not a full production platform
 
 Explicit constraints are acknowledged to keep the solution realistic and focused.
-
----
 
 ## Why Google Antigravity Was Used
 
@@ -159,16 +153,12 @@ Google Antigravity enabled:
 
 This prototype reflects **AI‑native development**, not traditional coding with AI autocomplete.
 
----
-
 ## How to Run the Project
 
 1. Clone the public repository
 2. Configure Firebase credentials
 3. Deploy the backend to Cloud Run
 4. Open the attendee UI or `/ops` for the staff view
-
----
 
 ## Future Enhancements (Out of Scope)
 
@@ -178,8 +168,6 @@ This prototype reflects **AI‑native development**, not traditional coding with
 - Advanced analytics dashboards
 
 These are excluded to keep the solution lightweight and aligned with hackathon scope.
-
----
 
 ## Summary
 
